@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+    <style>
+        body {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-gap: 5px;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            font-size: 32px;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+            border: 2px solid #000;
+        }
+    </style>
+
+<body>
+    <h1> Tic Tac Toe </h1>
+    <p>Enter Player X's name: <input type="text" id="playerXName"style="width:300px" value=""></p>
+    <p>Enter Player O's name: <input type="text" id="playerOName"style="width:300px" value=""></p>
+    <p><span id="playerX"></span>: $<span id="cashX">0</span></p>
+    <p><span id="playerO"></span>: $<span id="cashO">0</span></p>
+    <div class="board" id="board"></div>
+    <p id="message"></p>
+    <button id="resetButton">Reset Game</button>
+    
+    <script>
+        const board = document.getElementById('board');
+        const message = document.getElementById('message');
+        const resetButton = document.getElementById('resetButton');
+        const playerXNameInput = document.getElementById('playerXName');
+        const playerONameInput = document.getElementById('playerOName');
+        const playerXSpan = document.getElementById('playerX');
+        const playerOSpan = document.getElementById('playerO');
+        const cashXSpan = document.getElementById('cashX');
+        const cashOSpan = document.getElementById('cashO');
+        
+        let currentPlayer = 'X';
+        let cells = Array(9).fill('');
+        let gameover = false;
+        let playerXCash = 0;
+        let playerOCash = 0;
+
+        function checkWinner(cells, player) {
+            const winCombos = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+
+            for (const combo of winCombos) {
+                const [a, b, c] = combo;
+                if (cells[a] === player && cells[b] === player && cells[c] === player) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        function handleCellClick(index) {
+            if (cells[index] || message.textContent) return;
+
+            cells[index] = currentPlayer;
+            board.children[index].textContent = currentPlayer;
+
+            if (checkWinner(cells, currentPlayer)) {
+                message.textContent = `${currentPlayer} wins!`;
+                if (currentPlayer === 'X') {
+                    playerXCash += 10;
+                    playerOCash -= 10;
+                } else {
+                    playerOCash += 10;
+                    playerXCash -= 10;
+                }
+                updateCash();
+            } else if (!cells.includes('')) {
+                message.textContent = "It's a draw!";
+            } else {
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            }
+        }
+
+        function updateCash() {
+            cashXSpan.textContent = playerXCash;
+            cashOSpan.textContent = playerOCash;
+        }
+
+        function resetGame() {
+            currentPlayer = 'X';
+            cells = Array(9).fill('');
+            gameover = false;
+            message.textContent = '';      
+            for (const cell of board.children) {
+                cell.textContent = '';
+            }
+        }
+
+        playerXNameInput.addEventListener('input', () => {
+            playerXSpan.textContent = playerXNameInput.value;
+        });
+
+        playerONameInput.addEventListener('input', () => {
+            playerOSpan.textContent = playerONameInput.value;
+        });
+
+        for (let i = 0; i < 9; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.addEventListener('click', () => handleCellClick(i));
+            board.appendChild(cell);
+        }
+
+        resetButton.addEventListener('click', resetGame);
+
+        resetGame();
+    </script>
+</body>
+</html>
